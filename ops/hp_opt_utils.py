@@ -15,7 +15,14 @@ def hp_optim_interpreter(hp_hist, performance_history, exp_params):
             X=hp_hist_values,
             Y=np.asarray(performance_history),
             domain=domain)
-        return {k: v for k, v in zip(hp_hist[0].keys(), next_step.ravel())}
+        dom_dict = {k: v for k, v in zip(hp_hist[0].keys(), next_step.ravel())}
+        if exp_params['hp_current_iteration'] is not None:
+            dom_dict['hp_current_iteration'] = exp_params['hp_current_iteration']
+        else:
+            dom_dict['hp_current_iteration'] = 1
+        return dom_dict
+    elif hp_type == 'sigopt':
+        raise RuntimeError('sigopt not implemented.')
     else:
         raise RuntimeError('Hp-optimizer not implemented.')
 
