@@ -336,6 +336,7 @@ def main(
             dir_list['condition_evaluations'], 'training_config_file'),
         config)
     log.info('Starting training')
+    import ipdb; ipdb.set_trace()
     output_dict = training.training_loop(
         config=config,
         db=db,

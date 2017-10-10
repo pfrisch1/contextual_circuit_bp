@@ -472,34 +472,37 @@ def get_performance(experiment_name):
     return perf
 
 
-def query_hp_hist(exp_params, eval_on='validation_loss', init_top=1e10):
+def query_hp_hist(exp_params, eval_on='validation_loss'):
     """Query an experiment's history of hyperparameters and performance."""
     config = credentials.postgresql_connection()
     domain_param_map = hp_opt_utils.hp_opt_dict()
     experiment_name = exp_params['experiment_name']
     with db(config) as db_conn:
-        perf = db_conn.get_performance(experiment_name=experiment_name)
-        if len(perf) == 0:
-            # And set hp history to initial values.
-            hp_history = {}
-            for k, v in domain_param_map.iteritems():
-                if exp_params[k] is not None:  # If searching this domain.
-                    hp_history[v] = exp_params[v]
-
-            # First step of hp-optim. Requires > 1 entry for X/Y.
-            perf = [
-                [init_top + ((np.random.rand() - 0.5) * init_top / 10)],
-                [init_top + ((np.random.rand() - 0.5) * init_top / 10)]
-            ]
-            hp_history = [
-                hp_history,
-                hp_history
-            ]
+        perf_all = db_conn.get_performance(experiment_name=experiment_name)
+        if len(perf_all) == 0:
+            # # And set hp history to initial values.
+            # hp_history = {}
+            # for k, v in domain_param_map.iteritems():
+            #     if exp_params[k] is not None:  # If searching this domain.
+            #         hp_history[v] = exp_params[v]
+            #
+            # # First step of hp-optim. Requires > 1 entry for X/Y.
+            # perf = [
+            #     [init_top + ((np.random.rand() - 0.5) * init_top / 10)],
+            #     [init_top + ((np.random.rand() - 0.5) * init_top / 10)]
+            # ]
+            # hp_history = [
+            #     hp_history,
+            #     hp_history
+            # ]
+            perf = []
+            hp_history = []
         else:
+            import ipdb; ipdb.set_trace()
             # Sort performance by time elapsed
             times = [x['time_elapsed'] for x in perf]
             time_idx = np.argsort(times)
-            perf = [perf[idx][eval_on] for idx in time_idx]
+            perf = [perf_all[idx][eval_on] for idx in time_idx]
 
             # Sort hp parameters by history
             times = [x['experiment_iteration'] for x in exp_params]

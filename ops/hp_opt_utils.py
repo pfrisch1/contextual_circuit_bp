@@ -15,7 +15,13 @@ def hp_optim_interpreter(hp_hist, performance_history, exp_params):
             X=hp_hist_values,
             Y=np.asarray(performance_history),
             domain=domain)
-        dom_dict = {k: v for k, v in zip(hp_hist[0].keys(), next_step.ravel())}
+        dom_dict = exp_params
+        param_list = [domain[i]['name'] for i in range(len(domain))]
+        j = 0
+        for i in param_list:
+            dom_dict[i] = next_step[0][j]
+            j += 1
+        import ipdb; ipdb.set_trace()
         if exp_params['hp_current_iteration'] is not None:
             dom_dict['hp_current_iteration'] = exp_params['hp_current_iteration']
         else:
@@ -76,6 +82,11 @@ def gpyopt_wrapper(
         evaluator_type='local_penalization',
         hp_type='bayesian'):
     """Wrapper for gpyopt optimization."""
+    if len(X) == 0:
+        X_new = [[0]*len(domain)]
+        for i in range(len(domain)):
+            X_new[0][i] = np.random.uniform(min(domain[i]['domain']),max(domain[i]['domain']))
+        return np.array(X_new)
     my_prob = GPyOpt.methods.BayesianOptimization(
         f=f,
         X=X,
