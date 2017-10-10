@@ -64,9 +64,11 @@ class experiments():
                 os.path.join(model_folder, 'divisive_2l'),
                 os.path.join(model_folder, 'layer_2l'),
             ],
-            'dataset': 'ChallengeDB_release'
+            'dataset': 'cifar_10'
         }
-        return self.add_globals(exp)  # Add globals to the experiment
+        exp = self.add_globals(exp)
+        exp['epochs'] = 1
+        return exp  # Add globals to the experiment
 
     def two_layer_conv_mlp(self):
         """Each key in experiment_dict must be manually added to the schema."""

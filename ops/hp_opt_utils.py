@@ -90,10 +90,10 @@ def hp_opt_dict():
         'optimizer_domain': 'optimizer',
         'lr_domain': 'lr',
         'timesteps_domain': 'timesteps',
-        'tuning_u_domain': 'tuning_u',
-        'tuning_t_domain': 'tuning_t',
-        'tuning_q_domain': 'tuning_q',
-        'tuning_p_domain': 'tuning_p',
+        'u_t_domain': 'tuning_u',
+        't_t_domain': 'tuning_t',
+        'q_t_domain': 'tuning_q',
+        'p_t_domain': 'tuning_p',
     }
 
 
