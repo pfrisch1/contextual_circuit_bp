@@ -498,17 +498,23 @@ def query_hp_hist(exp_params, eval_on='validation_loss'):
             perf = []
             hp_history = []
         else:
-            import ipdb; ipdb.set_trace()
             # Sort performance by time elapsed
-            times = [x['time_elapsed'] for x in perf]
+            times = [x['time_elapsed'] for x in perf_all]
             time_idx = np.argsort(times)
             perf = [perf_all[idx][eval_on] for idx in time_idx]
 
-            # Sort hp parameters by history
-            times = [x['experiment_iteration'] for x in exp_params]
-            time_idx = np.argsort(times)
-            hp_history = [exp_params[idx] for idx in time_idx]
-    return perf, hp_history
+            hp_hist = []
+            perf = []
+
+            for i in time_idx:
+                hp_history = {}
+                for k, v in domain_param_map.iteritems():
+                    if exp_params[k] is not None:  # If searching this domain.
+                        hp_history[v] = perf_all[i][v]
+                perf.append(perf_all[i][eval_on])
+                hp_hist.append(hp_history)
+
+    return perf, hp_hist
 
 
 def main(

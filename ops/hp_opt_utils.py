@@ -10,10 +10,9 @@ def hp_optim_interpreter(hp_hist, performance_history, exp_params):
     hp_type = exp_params['hp_optim']
     domain = gather_domains(exp_params=exp_params, hp_type=hp_type)
     if hp_type == 'gpyopt':
-        hp_hist_values = np.asarray([v.values() for v in hp_hist])
         next_step = gpyopt_wrapper(
-            X=hp_hist_values,
-            Y=np.asarray(performance_history),
+            X=hp_hist,
+            Y=performance_history,
             domain=domain)
         dom_dict = exp_params
         param_list = [domain[i]['name'] for i in range(len(domain))]
@@ -21,7 +20,6 @@ def hp_optim_interpreter(hp_hist, performance_history, exp_params):
         for i in param_list:
             dom_dict[i] = next_step[0][j]
             j += 1
-        import ipdb; ipdb.set_trace()
         if exp_params['hp_current_iteration'] is not None:
             dom_dict['hp_current_iteration'] = exp_params['hp_current_iteration']
         else:
@@ -87,6 +85,10 @@ def gpyopt_wrapper(
         for i in range(len(domain)):
             X_new[0][i] = np.random.uniform(min(domain[i]['domain']),max(domain[i]['domain']))
         return np.array(X_new)
+    # Must pass in 2D numpy arrays for X and Y arguments
+    X = np.asarray([v.values() for v in X])
+    Y = np.asarray([[v] for v in Y])
+    import ipdb; ipdb.set_trace()
     my_prob = GPyOpt.methods.BayesianOptimization(
         f=f,
         X=X,
