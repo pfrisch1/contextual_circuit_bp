@@ -86,7 +86,6 @@ def gpyopt_wrapper(
         for i in range(len(domain)):
             X_new[0][i] = np.random.uniform(min(domain[i]['domain']),max(domain[i]['domain']))
         return np.array(X_new)
-
     # Must pass in 2D numpy arrays for X and Y arguments
     X = np.asarray([v.values() for v in X])
     Y = np.asarray([[v] for v in Y])

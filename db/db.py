@@ -270,13 +270,14 @@ class db(object):
                 rand_string,
                 )
         )
+        get_id = self.cur.fetchone()['experiment_id']
         self.cur.execute(
             """
             SELECT * FROM experiments
             WHERE _id=%(_id)s
             """,
             {
-                '_id': self.cur.fetchone()['experiment_id']
+                '_id': get_id
             }
         )
         if self.status_message:
@@ -411,7 +412,6 @@ def get_parameters(experiment_name, log, random=False):
         else:
             experiment_id = None
         log.info('Using parameters: %s' % json.dumps(param_dict, indent=4))
-    import ipdb; ipdb.set_trace()
     if param_dict is None:
         raise RuntimeError('This experiment is complete.')
     return param_dict, experiment_id
@@ -482,21 +482,6 @@ def query_hp_hist(exp_params, eval_on='validation_loss'):
     with db(config) as db_conn:
         perf_all = db_conn.get_performance(experiment_name=experiment_name)
         if len(perf_all) == 0:
-            # # And set hp history to initial values.
-            # hp_history = {}
-            # for k, v in domain_param_map.iteritems():
-            #     if exp_params[k] is not None:  # If searching this domain.
-            #         hp_history[v] = exp_params[v]
-            #
-            # # First step of hp-optim. Requires > 1 entry for X/Y.
-            # perf = [
-            #     [init_top + ((np.random.rand() - 0.5) * init_top / 10)],
-            #     [init_top + ((np.random.rand() - 0.5) * init_top / 10)]
-            # ]
-            # hp_history = [
-            #     hp_history,
-            #     hp_history
-            # ]
             perf = []
             hp_hist = []
         else:
@@ -535,10 +520,7 @@ def update_hp_opt_params(proc_exp_params, to_opt):
             WHERE _id=%(_id)s""",
                 up_dict
             )
-        db_conn.cur.execute("""SELECT lr, regularization_strength FROM experiments WHERE _id=%(_id)s""",{'_id': proc_id})
-        import ipdb; ipdb.set_trace()
-        print(db_conn.cur.fetchone())
-    print("oh no")
+
 
 def main(
         initialize_db,
