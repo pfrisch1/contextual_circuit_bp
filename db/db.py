@@ -402,14 +402,16 @@ def get_parameters(experiment_name, log, random=False):
         param_dict = db_conn.get_parameters_and_reserve(
             experiment_name=experiment_name,
             random=random)
-        log.info('Using parameters: %s' % json.dumps(param_dict, indent=4))
         if param_dict is not None:
             experiment_id = param_dict['_id']
-            # db_conn.update_in_process(
-            #     experiment_id=experiment_id,
-            #     experiment_name=experiment_name)
+            #check this
+            db_conn.update_in_process(
+                experiment_id=experiment_id,
+                experiment_name=experiment_name)
         else:
             experiment_id = None
+        log.info('Using parameters: %s' % json.dumps(param_dict, indent=4))
+    import ipdb; ipdb.set_trace()
     if param_dict is None:
         raise RuntimeError('This experiment is complete.')
     return param_dict, experiment_id
@@ -496,7 +498,7 @@ def query_hp_hist(exp_params, eval_on='validation_loss'):
             #     hp_history
             # ]
             perf = []
-            hp_history = []
+            hp_hist = []
         else:
             # Sort performance by time elapsed
             times = [x['time_elapsed'] for x in perf_all]
@@ -513,9 +515,30 @@ def query_hp_hist(exp_params, eval_on='validation_loss'):
                         hp_history[v] = perf_all[i][v]
                 perf.append(perf_all[i][eval_on])
                 hp_hist.append(hp_history)
-
     return perf, hp_hist
 
+
+def update_hp_opt_params(proc_exp_params, to_opt):
+
+    config = credentials.postgresql_connection()
+    proc_id = proc_exp_params['_id']
+    up_dict = {
+        '_id': proc_id,
+        'lr': proc_exp_params['lr'],
+        'regularization_strength': proc_exp_params['regularization_strength']
+    }
+    with db(config) as db_conn:
+        db_conn.cur.execute(
+            """
+            UPDATE experiments
+            SET lr=%(lr)s, regularization_strength=%(regularization_strength)s
+            WHERE _id=%(_id)s""",
+                up_dict
+            )
+        db_conn.cur.execute("""SELECT lr, regularization_strength FROM experiments WHERE _id=%(_id)s""",{'_id': proc_id})
+        import ipdb; ipdb.set_trace()
+        print(db_conn.cur.fetchone())
+    print("oh no")
 
 def main(
         initialize_db,

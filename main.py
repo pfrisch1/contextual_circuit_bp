@@ -40,13 +40,16 @@ def process_DB_exps(experiment_name, log, config):
         log=log)
     if 'hp_optim' in exp_params.keys() and exp_params['hp_optim'] is not None:
         performance_history, hp_hist = db.query_hp_hist(exp_params)
-        proc_exp_params = hp_opt_utils.hp_optim_interpreter(
+        proc_exp_params, to_opt = hp_opt_utils.hp_optim_interpreter(
             hp_hist=hp_hist,
             exp_params=exp_params,
             performance_history=performance_history
         )
+        """Updates db after params generated"""
+        db.update_hp_opt_params(proc_exp_params, to_opt)
     else:
         proc_exp_params = exp_params
+
     if exp_id is None:
         err = 'No empty experiments found.' + \
             'Did you select the correct experiment name?'
@@ -335,7 +338,7 @@ def main(
             dir_list['condition_evaluations'], 'training_config_file'),
         config)
     log.info('Starting training')
-    import ipdb; ipdb.set_trace()
+
     output_dict = training.training_loop(
         config=config,
         db=db,

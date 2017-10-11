@@ -21,10 +21,10 @@ def hp_optim_interpreter(hp_hist, performance_history, exp_params):
             dom_dict[i] = next_step[0][j]
             j += 1
         if exp_params['hp_current_iteration'] is not None:
-            dom_dict['hp_current_iteration'] = exp_params['hp_current_iteration']
+            dom_dict['hp_current_iteration'] = exp_params['hp_current_iteration'] + 1
         else:
             dom_dict['hp_current_iteration'] = 1
-        return dom_dict
+        return dom_dict, param_list
     elif hp_type == 'sigopt':
         raise RuntimeError('sigopt not implemented.')
     else:
@@ -80,14 +80,17 @@ def gpyopt_wrapper(
         evaluator_type='local_penalization',
         hp_type='bayesian'):
     """Wrapper for gpyopt optimization."""
+    # If empty generate random starting parameter combo
     if len(X) == 0:
         X_new = [[0]*len(domain)]
         for i in range(len(domain)):
             X_new[0][i] = np.random.uniform(min(domain[i]['domain']),max(domain[i]['domain']))
         return np.array(X_new)
+
     # Must pass in 2D numpy arrays for X and Y arguments
     X = np.asarray([v.values() for v in X])
     Y = np.asarray([[v] for v in Y])
+    # generate next sample if history exists
     my_prob = GPyOpt.methods.BayesianOptimization(
         f=f,
         X=X,

@@ -142,6 +142,7 @@ def training_loop(
                     print 'Saved checkpoint to: %s' % ckpt_path
                     force_save = False
                     time_elapsed += float(duration)
+
                     db.update_performance(
                         experiment_id=config._id,
                         experiment_name=config.experiment_name,
