@@ -47,7 +47,6 @@ def process_DB_exps(experiment_name, log, config):
         )
     else:
         proc_exp_params = exp_params
-
     if exp_id is None:
         err = 'No empty experiments found.' + \
             'Did you select the correct experiment name?'
