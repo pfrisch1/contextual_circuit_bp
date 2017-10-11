@@ -89,6 +89,7 @@ def gpyopt_wrapper(
     # Must pass in 2D numpy arrays for X and Y arguments
     X = np.asarray([v.values() for v in X])
     Y = np.asarray([[v] for v in Y])
+    import ipdb; ipdb.set_trace()
     # generate next sample if history exists
     my_prob = GPyOpt.methods.BayesianOptimization(
         f=f,

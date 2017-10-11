@@ -405,10 +405,9 @@ def get_parameters(experiment_name, log, random=False):
             random=random)
         if param_dict is not None:
             experiment_id = param_dict['_id']
-            #check this
-            db_conn.update_in_process(
-                experiment_id=experiment_id,
-                experiment_name=experiment_name)
+            # db_conn.update_in_process(
+            #     experiment_id=experiment_id,
+            #     experiment_name=experiment_name)
         else:
             experiment_id = None
         log.info('Using parameters: %s' % json.dumps(param_dict, indent=4))
@@ -507,19 +506,16 @@ def update_hp_opt_params(proc_exp_params, to_opt):
 
     config = credentials.postgresql_connection()
     proc_id = proc_exp_params['_id']
-    up_dict = {
-        '_id': proc_id,
-        'lr': proc_exp_params['lr'],
-        'regularization_strength': proc_exp_params['regularization_strength']
-    }
     with db(config) as db_conn:
-        db_conn.cur.execute(
-            """
-            UPDATE experiments
-            SET lr=%(lr)s, regularization_strength=%(regularization_strength)s
-            WHERE _id=%(_id)s""",
-                up_dict
-            )
+        for i in range(len(to_opt)):
+            var = to_opt[i]
+            db_conn.cur.execute(
+                """
+                UPDATE experiments
+                SET %s=%s
+                WHERE _id=%s"""
+                % (var,proc_exp_params[var],proc_id)
+                )
 
 
 def main(
