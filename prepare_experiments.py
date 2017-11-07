@@ -1,18 +1,36 @@
 import os
 import json
 import argparse
-import config
 import numpy as np
 import pandas as pd
 import itertools as it
 from db import db
 from db import credentials
 from utils import logger
+from config import Config
 from experiments import experiments
 
 
 def hp_optim_parameters(parameter_dict, log, ms_key='model_struct'):
-    """Experiment parameters in the case of hp_optimization algorithms."""
+    """Experiment parameters in the case of hp_optimization algorithms.
+
+    Parameters
+    ----------
+    parameter_dict: dictionary
+        a dictionary that stores information about the experiment
+    log:
+        a logger object
+    ms_key: string, optional:
+        the key in parameter_dict whose value is a list of paths
+        to the different layers in the model
+
+    Returns
+    -------
+    combos : list of dictionaries
+        each entry of the dictionaries stored in combos
+        is a json encoding of some the domain of some hyperparameter
+
+    """
     model_structs = parameter_dict[ms_key]
     parameter_dict = {
         k: v for k, v in parameter_dict.iteritems() if k is not ms_key}
@@ -34,7 +52,21 @@ def hp_optim_parameters(parameter_dict, log, ms_key='model_struct'):
 
 
 def package_parameters(parameter_dict, log):
-    """Derive combinations of experiment parameters."""
+    """Derive combinations of experiment parameters.
+
+    Parameters
+    ----------
+    parameter_dict: dictionary
+        a dictionary that stores information about the experiment
+    log:
+        a logger object
+
+    Returns
+    -------
+    combos:
+        a list that contains a dictionary for every possible combinations
+        of the parameters in parameter_dict (including the layers in model_struct)    
+    """
     parameter_dict = {
         k: v for k, v in parameter_dict.iteritems() if isinstance(v, list)
     }
@@ -46,8 +78,20 @@ def package_parameters(parameter_dict, log):
 
 
 def main(reset_process, initialize_db, experiment_name, remove=None):
-    """Populate db with experiments to run."""
-    main_config = config.Config()
+    """Populate db with experiments to run.
+
+    Parameters
+    ----------
+    reset_process: boolean
+        if reset_process is true, the in_proccess table is reset
+    initialize_db: boolean
+        if initialize_db is true, the database is initialized
+    experiment_name: string
+        the name of the experiment to be added to the database
+    remove: string, optional
+        the name of an experiment to be removed from the database
+    """
+    main_config = Config()
     log = logger.get(os.path.join(main_config.log_dir, 'prepare_experiments'))
     if reset_process:
         db.reset_in_process()
